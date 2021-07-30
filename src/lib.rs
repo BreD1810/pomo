@@ -1,4 +1,5 @@
 use clap::{value_t, App, AppSettings, Arg};
+use figlet_rs::FIGfont;
 use std::io;
 use std::io::Write;
 use std::thread::sleep;
@@ -61,19 +62,30 @@ impl Pomodoro {
     }
 
     pub fn run(mut self) {
+        let font = FIGfont::standand().unwrap();
         let mut time = 60 * self.pomodoro_length;
 
         while time != 0 {
+            let minutes = time / 60;
+            let seconds = time % 60;
+            let time_string = font
+                .convert(&format!("{}:{:02}", minutes, seconds))
+                .unwrap();
+
+            write!(self.stdout, "{}{}", cursor::Goto(1, 2), clear::AfterCursor).unwrap();
+
             write!(
                 self.stdout,
                 "{}{}{}{}",
                 clear::CurrentLine,
                 cursor::Goto(1, 2),
-                time,
+                time_string,
                 cursor::Hide
             )
             .unwrap();
-            self.stdout.flush().unwrap();
+
+            println!("[q] Quit\t[p] Play/Pause");
+
             time -= 1;
             sleep(Duration::from_secs(1));
         }
@@ -81,14 +93,12 @@ impl Pomodoro {
 }
 
 pub fn cleanup() {
-    println!("{}{}", cursor::Goto(1, 3), cursor::Show);
+    println!("{}{}{}", clear::All, cursor::Restore, cursor::Show);
 }
 
-pub fn print_skeleton() {
+pub fn print_header() {
     println!("{}", clear::All);
     println!("{}Welcome to the Pomodoro timer", cursor::Restore);
-    println!();
-    println!("[q] Quit");
 }
 
 pub fn setup_ctrlc_handler() {

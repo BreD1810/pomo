@@ -66,6 +66,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "figlet-rs"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59893843a423e9726b35a3110cd2be573bc9deddc553b0ff286107189b02d1aa"
+
+[[package]]
 name = "hermit-abi"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -104,6 +110,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "ctrlc",
+ "figlet-rs",
  "termion",
 ]
 

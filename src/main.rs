@@ -4,7 +4,7 @@ fn main() {
     setup_ctrlc_handler();
 
     let pomodoro = Pomodoro::new();
-    print_skeleton();
+    print_header();
     pomodoro.run();
 
     cleanup();
