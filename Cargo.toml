@@ -10,3 +10,4 @@ opt-level = "s"
 
 [dependencies]
 termion = "1.5.6"
+ctrlc = "3.1.9"
