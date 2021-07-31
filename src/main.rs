@@ -7,5 +7,5 @@ fn main() {
     print_header();
     pomodoro.run();
 
-    cleanup();
+    shutdown(0);
 }

@@ -92,8 +92,9 @@ impl Pomodoro {
     }
 }
 
-pub fn cleanup() {
+pub fn shutdown(exit_code: i32) {
     println!("{}{}{}", clear::All, cursor::Restore, cursor::Show);
+    std::process::exit(exit_code);
 }
 
 pub fn print_header() {
@@ -103,8 +104,7 @@ pub fn print_header() {
 
 pub fn setup_ctrlc_handler() {
     ctrlc::set_handler(|| {
-        cleanup();
-        std::process::exit(1);
+        shutdown(1);
     })
     .expect("Error setting Ctrl-C handler");
 }
