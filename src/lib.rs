@@ -2,12 +2,15 @@ use clap::{value_t, App, AppSettings, Arg};
 use figlet_rs::FIGfont;
 use std::io;
 use std::io::Write;
-use std::thread::sleep;
 use std::time::Duration;
+use termion::raw::IntoRawMode;
 use termion::{clear, cursor};
 
+mod input_handler;
+
 pub struct Pomodoro {
-    stdout: io::Stdout,
+    /// Is the timer paused?
+    paused: bool,
 
     /// The number of minutes for each Pomodoro.
     pomodoro_length: isize,
@@ -51,10 +54,8 @@ impl Pomodoro {
         let long = value_t!(matches, "long_break", isize).unwrap();
         let short = value_t!(matches, "short_break", isize).unwrap();
 
-        let stdout = io::stdout();
-
         Pomodoro {
-            stdout,
+            paused: false,
             pomodoro_length,
             short,
             long,
@@ -62,32 +63,54 @@ impl Pomodoro {
     }
 
     pub fn run(mut self) {
+        let mut stdout = io::stdout().into_raw_mode().unwrap();
+        let input_receiver = input_handler::listen();
+
         let font = FIGfont::standand().unwrap();
         let mut time = 60 * self.pomodoro_length;
 
         while time != 0 {
-            let minutes = time / 60;
-            let seconds = time % 60;
-            let time_string = font
-                .convert(&format!("{}:{:02}", minutes, seconds))
+            match input_receiver.try_recv() {
+                Ok(input_handler::InputCommand::Quit) => shutdown(0),
+                Ok(input_handler::InputCommand::PlayPause) => {
+                    self.paused = !self.paused;
+                }
+                _ => (),
+            }
+
+            if !self.paused {
+                let minutes = time / 60;
+                let seconds = time % 60;
+                let time_string = font
+                    .convert(&format!("{}:{:02}", minutes, seconds))
+                    .unwrap()
+                    .to_string()
+                    .replace("\n", "\n\r");
+
+                write!(stdout, "{}{}", cursor::Goto(1, 2), clear::AfterCursor).unwrap();
+
+                write!(
+                    stdout,
+                    "{}{}{}{}",
+                    clear::CurrentLine,
+                    cursor::Goto(1, 2),
+                    time_string,
+                    cursor::Hide
+                )
                 .unwrap();
 
-            write!(self.stdout, "{}{}", cursor::Goto(1, 2), clear::AfterCursor).unwrap();
+                println!("[q] Quit\t[p] Play/Pause");
 
-            write!(
-                self.stdout,
-                "{}{}{}{}",
-                clear::CurrentLine,
-                cursor::Goto(1, 2),
-                time_string,
-                cursor::Hide
-            )
-            .unwrap();
+                time -= 1;
+                spin_sleep::sleep(Duration::from_secs(1));
+            } else {
+                write!(
+                    stdout,
+                    "\rPAUSED",
+                ).unwrap();
 
-            println!("[q] Quit\t[p] Play/Pause");
-
-            time -= 1;
-            sleep(Duration::from_secs(1));
+                stdout.flush().unwrap();
+            }
         }
     }
 }
