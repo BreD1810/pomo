@@ -125,9 +125,3 @@ pub fn print_header() {
     println!("{}Welcome to the Pomodoro timer", cursor::Restore);
 }
 
-pub fn setup_ctrlc_handler() {
-    ctrlc::set_handler(|| {
-        shutdown(1);
-    })
-    .expect("Error setting Ctrl-C handler");
-}
