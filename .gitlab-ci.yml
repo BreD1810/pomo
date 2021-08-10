@@ -1,0 +1,11 @@
+stages:
+  - build
+
+build-pomo:
+  stage: build
+  image: rust:latest
+  script:
+    - cargo build --verbose
+  only:
+    - master
+    - merge_requests
