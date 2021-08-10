@@ -19,10 +19,10 @@ pub fn listen() -> Receiver<InputCommand> {
                 Key::Char('q') | Key::Ctrl('c') => {
                     sender.send(InputCommand::Quit).unwrap();
                     break;
-                },
+                }
                 Key::Char('p') => {
                     sender.send(InputCommand::PlayPause).unwrap();
-                },
+                }
                 _ => (),
             }
         }
