@@ -2,6 +2,13 @@
 name = "pomo"
 version = "0.1.0"
 edition = "2018"
+license = "MIT"
+description = "A Pomodoro CLI tool."
+readme = "README.md"
+homepage = "https://github.com/BreD1810/pomo"
+repository = "https://github.com/BreD1810/pomo"
+keywords = ["pomodoro", "productivity", "cli"]
+exclude = [".gitlab-ci.yml"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
