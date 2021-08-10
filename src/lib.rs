@@ -80,6 +80,17 @@ impl Pomodoro {
 
         let mut break_type: Option<BreakType>;
 
+        self.print_welcome(&mut stdout);
+        while self.paused {
+            match input_receiver.try_recv() {
+                Ok(input_handler::InputCommand::Quit) => shutdown(0),
+                Ok(input_handler::InputCommand::PlayPause) => {
+                    self.paused = !self.paused;
+                }
+                _ => (),
+            }
+        }
+
         loop {
             break_type = None;
             self.print_header(&mut stdout, &break_type);
@@ -97,6 +108,14 @@ impl Pomodoro {
             self.print_header(&mut stdout, &break_type);
             self.countdown(&break_type, &mut stdout, &input_receiver);
         }
+    }
+
+    fn print_welcome(&self, stdout: &mut RawTerminal<Stdout>) {
+        let font = FIGfont::standand().unwrap();
+        let title = font.convert("POMO").unwrap().to_string().replace("\n", "\n\r");
+
+        write!(stdout, "{}{}{}{}", clear::All, cursor::Goto(1, 1), title, cursor::Hide).unwrap();
+        println!("[q] Quit\t[p] Start");
     }
 
     fn print_header(&self, stdout: &mut RawTerminal<Stdout>, break_type: &Option<BreakType>) {
@@ -146,11 +165,10 @@ impl Pomodoro {
 
                 write!(
                     stdout,
-                    "{}{}{}{}",
+                    "{}{}{}",
                     clear::CurrentLine,
                     cursor::Goto(1, 2),
                     time_string,
-                    cursor::Hide
                 )
                 .unwrap();
 
